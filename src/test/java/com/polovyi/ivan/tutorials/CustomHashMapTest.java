@@ -2,6 +2,7 @@ package com.polovyi.ivan.tutorials;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
@@ -58,6 +59,8 @@ public class CustomHashMapTest {
         customHashMap.remove('A');
         // then
         assertEquals(0, customHashMap.size());
+        assertNull(customHashMap.get('A'));
+        assertFalse(customHashMap.containsKey('A'));
     }
 
     @Test
@@ -65,12 +68,14 @@ public class CustomHashMapTest {
         // given
         CustomHashMap<Character, String> customHashMap = new CustomHashMapImpl();
         customHashMap.put('A', "Array");
-        customHashMap.put('B', "ArrayList");
-        customHashMap.put('Y', "HashMap");
+        customHashMap.put('E', "Stack");
+        customHashMap.put('Y', "Queue");
         // when
         customHashMap.remove('A');
         // then
         assertEquals(2, customHashMap.size());
+        assertTrue(customHashMap.containsKey('E'));
+        assertTrue(customHashMap.containsKey('Y'));
     }
 
     @Test
@@ -78,12 +83,16 @@ public class CustomHashMapTest {
         // given
         CustomHashMap<Character, String> customHashMap = new CustomHashMapImpl();
         customHashMap.put('A', "Array");
-        customHashMap.put('E', "ArrayList");
-        customHashMap.put('Y', "HashMap");
+        customHashMap.put('E', "Stack");
+        customHashMap.put('Y', "Queue");
+        System.out.println("customHashMap = " + customHashMap);
         // when
         customHashMap.remove('E');
         // then
         assertEquals(2, customHashMap.size());
+        assertTrue(customHashMap.containsKey('A'));
+        assertTrue(customHashMap.containsKey('Y'));
+        System.out.println("customHashMap = " + customHashMap);
     }
 
     @Test
@@ -91,16 +100,20 @@ public class CustomHashMapTest {
         // given
         CustomHashMap<Character, String> customHashMap = new CustomHashMapImpl();
         customHashMap.put('A', "Array");
-        customHashMap.put('E', "ArrayList");
-        customHashMap.put('Y', "HashMap");
+        customHashMap.put('E', "Stack");
+        customHashMap.put('Y', "Queue");
+        System.out.println("customHashMap = " + customHashMap);
         // when
         customHashMap.remove('Y');
         // then
         assertEquals(2, customHashMap.size());
+        assertTrue(customHashMap.containsKey('A'));
+        assertTrue(customHashMap.containsKey('E'));
+        System.out.println("customHashMap = " + customHashMap);
     }
 
     @Test
-    public void shouldRemoveAllElementFromHashMapBucket() {
+    public void shouldRemoveAllElementFromHashMap() {
         // given
         CustomHashMap<Character, String> customHashMap = new CustomHashMapImpl();
         customHashMap.put('A', "Array");
@@ -118,6 +131,30 @@ public class CustomHashMapTest {
         customHashMap.remove('Y');
         // then
         assertEquals(0, customHashMap.size());
+        assertNull(customHashMap.get('A'));
+        assertFalse(customHashMap.containsKey('A'));
+        assertNull(customHashMap.get('B'));
+        assertFalse(customHashMap.containsKey('B'));
+        assertNull(customHashMap.get('C'));
+        assertFalse(customHashMap.containsKey('C'));
+        assertNull(customHashMap.get('D'));
+        assertFalse(customHashMap.containsKey('D'));
+        assertNull(customHashMap.get('E'));
+        assertFalse(customHashMap.containsKey('E'));
+        assertNull(customHashMap.get('Y'));
+        assertFalse(customHashMap.containsKey('Y'));
+    }
+
+    @Test
+    public void shouldReturnNullWhenRemoveCalledWithNonExistentKey() {
+        // given
+        CustomHashMap<Character, String> customHashMap = new CustomHashMapImpl();
+        customHashMap.put('A', "Array");
+        // when
+        String removedElementValue = customHashMap.remove('Y');
+        // then
+        assertEquals(1, customHashMap.size());
+        assertNull(removedElementValue);
     }
 
     @Test
@@ -133,7 +170,7 @@ public class CustomHashMapTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenContainsKeyCalledForLastElementInBucketGivenBucketWithTwoElement() {
+    public void shouldReturnTrueWhenContainsKeyCalledForEveryElementInMap() {
         // given
         CustomHashMap<Character, String> customHashMap = new CustomHashMapImpl();
         customHashMap.put('A', "Array");
@@ -156,6 +193,17 @@ public class CustomHashMapTest {
         assertTrue(hasDKey);
         assertTrue(hasEKey);
         assertTrue(hasYKey);
+    }
+
+    @Test
+    public void shouldReturnNullWhenGetCalledWithNonexistentKey() {
+        // given
+        CustomHashMap<Character, String> customHashMap = new CustomHashMapImpl();
+        customHashMap.put('A', "Array");
+        // when
+        String value = customHashMap.get('B');
+        // then
+        assertNull(value);
     }
 
     @Test
@@ -190,7 +238,7 @@ public class CustomHashMapTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenContainsValueCalledForUniqueElementInTheBucketGivenBucketWithTwoElement() {
+    public void shouldReturnTrueWhenContainsValueCalledForUniqueElementInTheBucket() {
         // given
         CustomHashMap<Character, String> customHashMap = new CustomHashMapImpl();
         customHashMap.put('A', "ArrayList");
@@ -252,14 +300,46 @@ public class CustomHashMapTest {
     public void shouldDoRehash() {
         // given
         CustomHashMap<Character, String> customHashMap = new CustomHashMapImpl();
-        customHashMap.put('A', "Array");
-        customHashMap.put('B', "ArrayList");
-        customHashMap.put('C', "LinkedList");
-        System.out.println("customHashMap = " + customHashMap);
+        Character aKey = 'A';
+        String aValue = "Array";
+        customHashMap.put(aKey, aValue);
+        Character cKey = 'C';
+        String cValue = "LinkedList";
+        customHashMap.put(cKey, cValue);
+        Character dKey = 'D';
+        String dValue = "HashMap";
         // when
-        customHashMap.put('D', "HashMap");
+        customHashMap.put(dKey, dValue);
         // then
-        System.out.println("customHashMap = " + customHashMap);
+        assertEquals(3, customHashMap.size());
+        assertEquals(aValue, customHashMap.get(aKey));
+        assertEquals(cValue, customHashMap.get(cKey));
+        assertEquals(dValue, customHashMap.get(dKey));
+    }
+
+    @Test
+    public void shouldDoRehashWhenBucketHasMoreThanOneElement() {
+        // given
+        CustomHashMap<Character, String> customHashMap = new CustomHashMapImpl();
+        Character aKey = 'A';
+        String aValue = "Array";
+        customHashMap.put(aKey, aValue);
+        Character eKey = 'E';
+        String eValue = "ArrayList";
+        customHashMap.put(eKey, eValue);
+        Character cKey = 'C';
+        String cValue = "LinkedList";
+        customHashMap.put(cKey, cValue);
+        Character dKey = 'D';
+        String dValue = "HashMap";
+        // when
+        customHashMap.put(dKey, dValue);
+        // then
+        assertEquals(4, customHashMap.size());
+        assertEquals(aValue, customHashMap.get(aKey));
+        assertEquals(eValue, customHashMap.get(eKey));
+        assertEquals(cValue, customHashMap.get(cKey));
+        assertEquals(dValue, customHashMap.get(dKey));
     }
 
     @Test

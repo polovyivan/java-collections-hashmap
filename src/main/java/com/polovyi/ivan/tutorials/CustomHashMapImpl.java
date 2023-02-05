@@ -37,31 +37,19 @@ public class CustomHashMapImpl<K, V> implements CustomHashMap<K, V> {
             return;
         }
         int index = getIndex(key);
-
         EntryNode<K, V> entryNode = new EntryNode<>(key, value);
-        if (buckets[index] == null) {
-            buckets[index] = entryNode;
-        } else {
-            EntryNode<K, V> presentEntryNode = buckets[index];
-            while (presentEntryNode.next != null) {
-                presentEntryNode = presentEntryNode.next;
-            }
-            presentEntryNode.next = entryNode;
+
+        if (buckets[index] != null) {
+            entryNode.next = buckets[index];
         }
+        buckets[index] = entryNode;
         this.size++;
     }
 
     @Override
     public V get(K key) {
-        int index = getIndex(key);
-        EntryNode<K, V> node = buckets[index];
-        if (node != null) {
-            while (node.next != null && !Objects.equals(node.key, key)) {
-                node = node.next;
-            }
-            return node.value;
-        }
-        return null;
+        EntryNode<K, V> node = this.getNode(key);
+        return node != null ? node.value : null;
     }
 
     @Override
@@ -96,7 +84,7 @@ public class CustomHashMapImpl<K, V> implements CustomHashMap<K, V> {
 
     @Override
     public boolean containsKey(K key) {
-        return getNode(key) != null;
+        return this.getNode(key) != null;
     }
 
     @Override
@@ -115,27 +103,7 @@ public class CustomHashMapImpl<K, V> implements CustomHashMap<K, V> {
                 }
             }
         }
-
         return false;
-    }
-
-    private void reHash() {
-        int newLength = buckets.length * INCREASE_FACTOR;
-        EntryNode<K, V>[] oldBucketsTmp = buckets;
-        buckets = new EntryNode[newLength];
-
-        for (int i = 0; i < oldBucketsTmp.length; i++) {
-            EntryNode<K, V> node = oldBucketsTmp[i];
-            if (node != null) {
-                int index = getIndex(node.key);
-                buckets[index] = node;
-                while (node.next != null) {
-                    node = node.next;
-                    index = getIndex(node.key);
-                    buckets[index] = node;
-                }
-            }
-        }
     }
 
     private static class EntryNode<K, V> {
@@ -158,21 +126,37 @@ public class CustomHashMapImpl<K, V> implements CustomHashMap<K, V> {
     }
 
     private EntryNode<K, V> getNode(K key) {
-        for (int i = 0; i < buckets.length; i++) {
-            EntryNode<K, V> node = buckets[i];
-            if (node != null) {
+        int index = getIndex(key);
+        EntryNode<K, V> node = buckets[index];
+        if (node != null) {
+            if (Objects.equals(node.key, key)) {
+                return node;
+            }
+            while (node.next != null) {
+                node = node.next;
                 if (Objects.equals(node.key, key)) {
                     return node;
-                }
-                while (node.next != null) {
-                    node = node.next;
-                    if (Objects.equals(node.key, key)) {
-                        return node;
-                    }
                 }
             }
         }
         return null;
+    }
+
+    private void reHash() {
+        int newLength = buckets.length * INCREASE_FACTOR;
+        EntryNode<K, V>[] oldBucketsTmp = buckets;
+        buckets = new EntryNode[newLength];
+        size = 0;
+        for (int i = 0; i < oldBucketsTmp.length; i++) {
+            EntryNode<K, V> node = oldBucketsTmp[i];
+            if (node != null) {
+                put(node.key, node.value);
+                while (node.next != null) {
+                    node = node.next;
+                    put(node.key, node.value);
+                }
+            }
+        }
     }
 
     @Override
