@@ -153,7 +153,7 @@ public class CustomHashMapImpl<K, V> implements CustomHashMap<K, V> {
 
     private int getIndex(K key) {
         int keyHashCode = key != null ? key.hashCode() : 0;
-        int index = keyHashCode % this.buckets.length & 0x7FFFFFFF;
+        int index = Math.abs((keyHashCode % this.buckets.length) - 1);
         return index;
     }
 
