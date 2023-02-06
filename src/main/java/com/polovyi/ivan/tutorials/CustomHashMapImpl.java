@@ -27,14 +27,14 @@ public class CustomHashMapImpl<K, V> implements CustomHashMap<K, V> {
 
     @Override
     public void put(K key, V value) {
-        double currentFactor = ((double) size / buckets.length);
-        if (currentFactor >= DEFAULT_LOAD_FACTOR) {
-            reHash();
-        }
         EntryNode<K, V> existingNode = getNode(key);
         if (existingNode != null) {
             existingNode.value = value;
             return;
+        }
+        double currentFactor = ((double) size / buckets.length);
+        if (currentFactor >= DEFAULT_LOAD_FACTOR) {
+            reHash();
         }
         int index = getIndex(key);
         EntryNode<K, V> entryNode = new EntryNode<>(key, value);
